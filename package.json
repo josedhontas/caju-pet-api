@@ -4,6 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
+    "postinstall": "prisma generate",
     "start": "node src/server.js",
     "test": "echo \"Error: no test specified\" && exit 1",
     "dev": "nodemon src/server.js"
@@ -19,10 +20,11 @@
     "@prisma/client": "^7.5.0",
     "dotenv": "^16.6.1",
     "fastify": "^5.8.2",
+    "prisma": "^7.5.0",
     "zod": "^4.3.6"
-  },
+  }
+  ,
   "devDependencies": {
-    "nodemon": "^3.1.14",
-    "prisma": "^7.5.0"
+    "nodemon": "^3.1.14"
   }
 }
