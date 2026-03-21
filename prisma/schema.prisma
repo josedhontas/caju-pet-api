@@ -1,0 +1,63 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Get a free hosted Postgres database in seconds: `npx create-db`
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+}
+
+enum StatusAgendamento {
+  AGENDADO
+  CONCLUIDO
+  CANCELADO
+}
+
+model Cliente {
+  id        Int      @id @default(autoincrement())
+  nome      String
+  telefone  String
+  email     String?
+  createdAt DateTime @default(now())
+
+  pets      Pet[]
+}
+
+model Pet {
+  id           Int           @id @default(autoincrement())
+  nome         String
+  tipo         String
+  raca         String
+  idade        Int?
+  createdAt    DateTime      @default(now())
+  clienteId    Int
+  cliente      Cliente       @relation(fields: [clienteId], references: [id])
+  agendamentos Agendamento[]
+}
+
+model Servico {
+  id           Int           @id @default(autoincrement())
+  nome         String
+  preco        Decimal       @db.Decimal(10, 2)
+  duracaoMin   Int
+  createdAt    DateTime      @default(now())
+  agendamentos Agendamento[]
+}
+
+model Agendamento {
+  id           Int                @id @default(autoincrement())
+  dataHora     DateTime
+  status       StatusAgendamento  @default(AGENDADO)
+  valorCobrado Decimal            @db.Decimal(10, 2)
+  createdAt    DateTime           @default(now())
+  petId        Int
+  pet          Pet                @relation(fields: [petId], references: [id])
+  servicoId    Int
+  servico      Servico            @relation(fields: [servicoId], references: [id])
+
+  @@unique([dataHora])
+}
