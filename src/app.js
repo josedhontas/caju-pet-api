@@ -16,6 +16,20 @@ function buildApp() {
 
   app.decorate('prisma', prisma)
 
+  app.addHook('onRequest', async (request, reply) => {
+    reply.header('Access-Control-Allow-Origin', '*')
+    reply.header('Access-Control-Allow-Methods', 'GET,POST,PUT,PATCH,DELETE,OPTIONS')
+    reply.header(
+      'Access-Control-Allow-Headers',
+      'Authorization, Content-Type, Accept, Origin, X-Requested-With',
+    )
+    reply.header('Access-Control-Max-Age', '86400')
+
+    if (request.method === 'OPTIONS') {
+      return reply.code(204).send()
+    }
+  })
+
   for (const schema of schemas) {
     app.addSchema(schema)
   }
