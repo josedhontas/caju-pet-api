@@ -10,6 +10,7 @@ async function start() {
 
   try {
     await prisma.$connect()
+    await prisma.$queryRawUnsafe('SELECT 1')
     await app.listen({ port, host: '0.0.0.0' })
     console.log(`Servidor rodando na porta ${port}`)
   } catch (error) {
