@@ -20,11 +20,8 @@
     "@prisma/client": "^7.5.0",
     "dotenv": "^16.6.1",
     "fastify": "^5.8.2",
+    "nodemon": "^3.1.14",
     "prisma": "^7.5.0",
     "zod": "^4.3.6"
-  }
-  ,
-  "devDependencies": {
-    "nodemon": "^3.1.14"
   }
 }
