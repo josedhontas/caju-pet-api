@@ -1,7 +1,47 @@
 const swagger = require('@fastify/swagger')
 const swaggerUi = require('@fastify/swagger-ui')
 
+function normalizeUrl(url) {
+  return String(url).replace(/\/+$/, '')
+}
+
+function getForwardedValue(value) {
+  if (!value) {
+    return undefined
+  }
+
+  return String(value).split(',')[0].trim()
+}
+
+function getPublicServerUrl(request) {
+  if (process.env.PUBLIC_API_URL) {
+    return normalizeUrl(process.env.PUBLIC_API_URL)
+  }
+
+  const forwardedProto = getForwardedValue(request.headers['x-forwarded-proto'])
+  const forwardedHost = getForwardedValue(request.headers['x-forwarded-host'])
+  const forwardedPort = getForwardedValue(request.headers['x-forwarded-port'])
+  const host = forwardedHost || request.headers.host
+
+  if (!host) {
+    return `http://localhost:${process.env.PORT || 3333}`
+  }
+
+  const protocol = forwardedProto || request.protocol || 'http'
+  const shouldAppendPort =
+    forwardedPort &&
+    !String(host).includes(':') &&
+    forwardedPort !== '80' &&
+    forwardedPort !== '443'
+
+  return `${protocol}://${host}${shouldAppendPort ? `:${forwardedPort}` : ''}`
+}
+
 function registerDocs(app) {
+  const defaultServerUrl = process.env.PUBLIC_API_URL
+    ? normalizeUrl(process.env.PUBLIC_API_URL)
+    : `http://localhost:${process.env.PORT || 3333}`
+
   app.register(swagger, {
     openapi: {
       info: {
@@ -25,8 +65,8 @@ function registerDocs(app) {
       ],
       servers: [
         {
-          url: 'http://localhost:3333',
-          description: 'Servidor local',
+          url: defaultServerUrl,
+          description: 'Servidor atual',
         },
       ],
       tags: [
@@ -46,6 +86,16 @@ function registerDocs(app) {
       deepLinking: false,
     },
     staticCSP: true,
+    transformSpecification: (swaggerObject, request) => {
+      swaggerObject.servers = [
+        {
+          url: getPublicServerUrl(request),
+          description: 'Servidor atual',
+        },
+      ]
+
+      return swaggerObject
+    },
     transformSpecificationClone: true,
   })
 }
